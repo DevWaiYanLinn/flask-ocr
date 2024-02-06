@@ -4,12 +4,23 @@ from sklearn.preprocessing import LabelEncoder
 import imutils
 from imutils.contours import sort_contours
 from keras.models import load_model
+import os
+import warnings
 
-model = load_model("./Thuta.h5")
+# Suppress specific TensorFlow and Keras warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="tensorflow")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="keras")
 
+# Get the path to the directory containing this script
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
-def test_pipeline(image_path):
-    img = cv2.imread(image_path)
+# Load the model using the relative path
+model_path = os.path.join(script_dir, "model.h5")
+model = load_model(model_path)
+
+def test_pipeline(image_data):
+
+    img = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.resize(img_gray, (1200, 318))
     img_gray = cv2.GaussianBlur(img_gray, (5, 5), 0)
@@ -62,7 +73,7 @@ def test_pipeline(image_path):
 
     label_encoder = LabelEncoder()
     label_class = label_encoder.fit_transform(labels)
-     
+
     results = []
 
     for c in contours:
@@ -99,3 +110,5 @@ def test_pipeline(image_path):
             pred = model.predict(padded)
             pred = np.argmax(pred, axis=1)
             results.append(real_labels[np.where(label_class == pred[0])[0][0]])
+
+    return results

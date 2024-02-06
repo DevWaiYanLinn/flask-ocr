@@ -1,17 +1,12 @@
-import flask
-
-print(flask.__version__)
-
-from flask import Flask, jsonify
-import os
+from flask import Flask
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif"}
 from flask import render_template
 
-app = Flask(__name__)
-app.secret_key = '1234'
+app = Flask(__name__, template_folder="./src")
+app.secret_key = "1234"
 
 
 @app.route("/")
@@ -33,4 +28,4 @@ def upload_file():
         flash("No selected file")
         return redirect(request.url)
     if file and allowed_file(file.filename):
-        return 'hello world'
+        return "hello world"
